@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 import fitz
 from langchain_huggingface import HuggingFaceEmbeddings
-from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 from langchain_mistralai import ChatMistralAI

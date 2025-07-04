@@ -15,10 +15,10 @@ embedModel = HuggingFaceEmbeddings(
     model_kwargs={'device':'cpu'},
     encode_kwargs={'normalize_embeddings':True})
 
-
-def extractTextFromPDF(file_path):
+def TextFromPDF(uploaded_file):
     try:
-        doc = fitz.open(file_path)
+        file = uploaded_file.read()
+        doc = fitz.open(stream=file, filetype="pdf")
         text = ""
         for page in doc:
             text += page.get_text()
@@ -40,16 +40,9 @@ def home(request):
         question = request.POST.get("question")
 
         if not uploadedFile or not question:
-            return render(request, "home.html", {"answer": "Please upload PDF and enter a question."})
+            return render(request, "home.html")
 
-        # Saves PDF temporarily
-        tempPath = f"temp_{uploadedFile.name}"
-        with open(tempPath, "wb") as f:
-            for chunk in uploadedFile.chunks():
-                f.write(chunk)
-
-        # Extracts and chunks text
-        text = extractTextFromPDF(tempPath)
+        text = extractTextFromPDF(uploadedFile)
         chunks = chunkText(text)
         
         # Creates embeddings for chunks
@@ -73,7 +66,7 @@ def home(request):
 
         # Prompt
         prompt = ChatPromptTemplate.from_messages([
-            ('system',f'''You are a study companion bot. Help the student out in whatever they need. Keep your answers short and to the point. Your only goal is to help them. Format the text to make it easily readable.
+            ('system',f'''You are a study companion bot. Help the student out in whatever they need. Keep your answers to the point, you are free to use additional information from the internet. Your only goal is to help them. Format the text to make it easily readable.
             Study Material:{context}'''),
             ('human',f'{question}')
         ])
@@ -88,9 +81,6 @@ def home(request):
 
         except Exception as e:
             answer = f"Error from Mistral API: {str(e)}"
-
-        # Cleanup
-        os.remove(tempPath)
 
     return render(request, "home.html", {"answer": answer})
 

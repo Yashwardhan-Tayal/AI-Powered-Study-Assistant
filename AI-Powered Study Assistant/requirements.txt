@@ -1,0 +1,8 @@
+Django
+langchain
+langchain-mistralai
+sentence-transformers
+PyMuPDF
+faiss-cpu
+requests
+dotenv

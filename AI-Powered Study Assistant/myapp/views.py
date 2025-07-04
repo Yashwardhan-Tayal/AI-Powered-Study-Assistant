@@ -42,7 +42,7 @@ def home(request):
         if not uploadedFile or not question:
             return render(request, "home.html")
 
-        text = extractTextFromPDF(uploadedFile)
+        text = TextFromPDF(uploadedFile)
         chunks = chunkText(text)
         
         # Creates embeddings for chunks

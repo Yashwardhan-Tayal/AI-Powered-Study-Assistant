@@ -7,3 +7,4 @@ faiss-cpu
 requests
 python-dotenv
 numpy
+langsmith<0.4

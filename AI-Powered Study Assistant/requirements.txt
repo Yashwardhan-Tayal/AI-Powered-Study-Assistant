@@ -1,8 +1,9 @@
 Django
 langchain
 langchain-mistralai
-sentence-transformers
+langchain-huggingface
 PyMuPDF
 faiss-cpu
 requests
-dotenv
+python-dotenv
+numpy

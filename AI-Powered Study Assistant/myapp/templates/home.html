@@ -10,30 +10,50 @@
   <div class="container py-5">
     <h2 class="text-center mb-4">📚 Smart Study Companion</h2>
 
-    <form method="post" enctype="multipart/form-data" id="upload-form">
+    <!-- Upload Form -->
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
-      
-      <!-- File Upload -->
       <div class="mb-3">
         <label for="pdf-file" class="form-label">Upload your Notes (PDF)</label>
         <input type="file" class="form-control" id="pdf-file" name="file" accept="application/pdf" required>
       </div>
 
-      <!-- PDF Preview -->
       <div class="mb-4">
         <canvas id="pdf-canvas" class="border rounded shadow" height="400" style="object-fit: contain;"></canvas>
       </div>
 
-      <!-- Question Input -->
+      <button type="submit" class="btn btn-success w-100">📤 Upload Notes</button>
+    </form>
+
+    <hr class="my-4">
+
+    <!-- Question Form -->
+    <form method="post">
+      {% csrf_token %}
       <div class="mb-3">
         <label for="question" class="form-label">Ask a Question</label>
         <input type="text" class="form-control" id="question" name="question" placeholder="e.g. What is Ohm's Law?" required>
       </div>
-
-      <button type="submit" class="btn btn-primary w-100">Get Answer</button>
+      <button type="submit" class="btn btn-primary w-100">🤖 Ask Assistant</button>
     </form>
 
-    <!-- Styled Answer Output -->
+    <!-- Chat History -->
+    {% if chat_history %}
+      <div class="mt-5">
+        <h5>🗨️ Conversation</h5>
+        <div class="border rounded p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+          {% for role, message in chat_history %}
+            {% if role == "user" %}
+              <div class="mb-2"><strong>You:</strong> {{ message }}</div>
+            {% else %}
+              <div class="mb-2 text-primary"><strong>Assistant:</strong> {{ message }}</div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Last Answer -->
     {% if answer %}
       <div class="alert alert-info mt-4" role="alert">
         <strong>Answer:</strong> {{ answer }}
@@ -41,13 +61,12 @@
     {% endif %}
   </div>
 
-  <!-- PDF.js Viewer Script -->
   <script>
     const fileInput = document.getElementById('pdf-file');
     const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
 
-    fileInput.addEventListener('change', () => {
+    fileInput?.addEventListener('change', () => {
       const file = fileInput.files[0];
       if (!file) return;
 
@@ -56,8 +75,8 @@
         const typedArray = new Uint8Array(this.result);
 
         pdfjsLib.getDocument({ data: typedArray }).promise.then(pdf => {
-          const fixedHeight = 500; // Fixed height in pixels
           pdf.getPage(1).then(page => {
+            const fixedHeight = 500;
             const viewport = page.getViewport({ scale: 1 });
             const scale = fixedHeight / viewport.height;
             const scaledViewport = page.getViewport({ scale });
